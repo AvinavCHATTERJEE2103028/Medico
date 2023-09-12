@@ -13,116 +13,118 @@
 
 --------------------------------------------------------------------------------------
 # Create a new medicine
-```@app.route(&#39;/medicine&#39;, methods=[&#39;POST&#39;])
+```@app.route(/medicine, methods=[POST])
 def add_medicine():
-name = request.json[&#39;name&#39;]
-manufacturer = request.json[&#39;manufacturer&#39;]
-quantity = request.json[&#39;quantity&#39;]
+name = request.json[name]
+manufacturer = request.json[manufacturer]
+quantity = request.json[quantity]
 
 medicine = {
-&#39;name&#39;: name,
-&#39;manufacturer&#39;: manufacturer,
-&#39;quantity&#39;: quantity
+name: name,
+manufacturer: manufacturer,
+quantity: quantity
 }
 
 mongo.db.medicines.insert_one(medicine)
 
-return jsonify({&#39;message&#39;: &#39;Medicine added successfully&#39;}), 201
+return jsonify({message: Medicine added successfully}), 201
 ```
 
 # Get all medicines
-```@app.route(&#39;/medicines&#39;, methods=[&#39;GET&#39;])
+```@app.route(/medicines, methods=[GET])
 def get_medicines():
 medicines = mongo.db.medicines.find()
 result = []
 for medicine in medicines:
 result.append({
-&#39;id&#39;: str(medicine[&#39;_id&#39;]),
-&#39;name&#39;: medicine[&#39;name&#39;],
-&#39;manufacturer&#39;: medicine[&#39;manufacturer&#39;],
-&#39;quantity&#39;: medicine[&#39;quantity&#39;]
+id: str(medicine[_id]),
+name: medicine[name],
+manufacturer: medicine[manufacturer],
+quantity: medicine[quantity]
 })
 return jsonify(result)
 ```
 
 # Get a single medicine by ID
-```@app.route(&#39;/medicine/&lt;id&gt;&#39;, methods=[&#39;GET&#39;])
+```@app.route(/medicine/&ltid&gt, methods=[GET])
 def get_medicine(id):
-medicine = mongo.db.medicines.find_one({&#39;_id&#39;: ObjectId(id)})
+medicine = mongo.db.medicines.find_one({_id: ObjectId(id)})
 if medicine:
 return jsonify({
-&#39;id&#39;: str(medicine[&#39;_id&#39;]),
-&#39;name&#39;: medicine[&#39;name&#39;],
-&#39;manufacturer&#39;: medicine[&#39;manufacturer&#39;],
-&#39;quantity&#39;: medicine[&#39;quantity&#39;]
+id: str(medicine[_id]),
+name: medicine[name],
+manufacturer: medicine[manufacturer],
+quantity: medicine[quantity]
 })
-return jsonify({&#39;message&#39;: &#39;Medicine not found&#39;}), 404
+return jsonify({message: Medicine not found}), 404
 ```
 
 # Update a medicine by ID
-```@app.route(&#39;/medicine/&lt;id&gt;&#39;, methods=[&#39;PUT&#39;])
+```@app.route(/medicine/&ltid&gt, methods=[PUT])
 def update_medicine(id):
-name = request.json[&#39;name&#39;]
-manufacturer = request.json[&#39;manufacturer&#39;]
-quantity = request.json[&#39;quantity&#39;]
+name = request.json[name]
+manufacturer = request.json[manufacturer]
+quantity = request.json[quantity]
 
-mongo.db.medicines.update_one({&#39;_id&#39;: ObjectId(id)}, {&#39;$set&#39;: {
-&#39;name&#39;: name,
-&#39;manufacturer&#39;: manufacturer,
-&#39;quantity&#39;: quantity
+mongo.db.medicines.update_one({_id: ObjectId(id)}, {$set: {
+name: name,
+manufacturer: manufacturer,
+quantity: quantity
 }})
 
-return jsonify({&#39;message&#39;: &#39;Medicine updated successfully&#39;})
+return jsonify({message: Medicine updated successfully})
 ```
 
 # Delete a medicine by ID
 ```
-@app.route(&#39;/medicine/&lt;id&gt;&#39;, methods=[&#39;DELETE&#39;])
+@app.route(/medicine/&ltid&gt, methods=[DELETE])
 def delete_medicine(id):
-mongo.db.medicines.delete_one({&#39;_id&#39;: ObjectId(id)})
-return jsonify({&#39;message&#39;: &#39;Medicine deleted successfully&#39;})
+mongo.db.medicines.delete_one({_id: ObjectId(id)})
+return jsonify({message: Medicine deleted successfully})
+```
 
-#Search Medicines by Name:
-@app.route(&#39;/medicines/search/&lt;keyword&gt;&#39;, methods=[&#39;GET&#39;])
+# Search Medicines by Name:
+```
+@app.route(/medicines/search/&ltkeyword&gt, methods=[GET])
 def search_medicines(keyword):
-medicines = mongo.db.medicines.find({&quot;name&quot;: {&quot;$regex&quot;: keyword, &quot;$options&quot;: &quot;i&quot;}})
+medicines = mongo.db.medicines.find({&quotname&quot: {&quot$regex&quot: keyword, &quot$options&quot: &quoti&quot}})
 result = []
 for medicine in medicines:
 result.append({
-&#39;id&#39;: str(medicine[&#39;_id&#39;]),
-&#39;name&#39;: medicine[&#39;name&#39;],
-&#39;manufacturer&#39;: medicine[&#39;manufacturer&#39;],
-&#39;quantity&#39;: medicine[&#39;quantity&#39;]
+id: str(medicine[_id]),
+name: medicine[name],
+manufacturer: medicine[manufacturer],
+quantity: medicine[quantity]
 })
 return jsonify(result)
 ```
 
-#Sort Medicines by Quantity:
+# Sort Medicines by Quantity:
 ```
-@app.route(&#39;/medicines/sort/quantity&#39;, methods=[&#39;GET&#39;])
+@app.route(/medicines/sort/quantity, methods=[GET])
 def sort_medicines_by_quantity():
-medicines = mongo.db.medicines.find().sort(&#39;quantity&#39;, 1) # 1 for ascending, -1 for
+medicines = mongo.db.medicines.find().sort(quantity, 1) # 1 for ascending, -1 for
 descending
 result = []
 for medicine in medicines:
 result.append({
-&#39;id&#39;: str(medicine[&#39;_id&#39;]),
-&#39;name&#39;: medicine[&#39;name&#39;],
-&#39;manufacturer&#39;: medicine[&#39;manufacturer&#39;],
-&#39;quantity&#39;: medicine[&#39;quantity&#39;]
+id: str(medicine[_id]),
+name: medicine[name],
+manufacturer: medicine[manufacturer],
+quantity: medicine[quantity]
 })
 return jsonify(result)
 ```
 
-#Get Medicine Statistics (Total Quantity):
+# Get Medicine Statistics (Total Quantity):
 ```
-@app.route(&#39;/medicine/statistics&#39;, methods=[&#39;GET&#39;])
+@app.route(/medicine/statistics, methods=[GET])
 def get_medicine_statistics():
 total_quantity = mongo.db.medicines.aggregate([
-{&quot;$group&quot;: {&quot;_id&quot;: None, &quot;total_quantity&quot;: {&quot;$sum&quot;: &quot;$quantity&quot;}}}
+{&quot$group&quot: {&quot_id&quot: None, &quottotal_quantity&quot: {&quot$sum&quot: &quot$quantity&quot}}}
 ])
-total_quantity = list(total_quantity)[0][&#39;total_quantity&#39;] if total_quantity else 0
-return jsonify({&#39;total_quantity&#39;: total_quantity})
+total_quantity = list(total_quantity)[0][total_quantity] if total_quantity else 0
+return jsonify({total_quantity: total_quantity})
 ```
 
 
